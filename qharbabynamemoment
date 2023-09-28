@@ -1,0 +1,44 @@
+import sys
+import re
+
+def extract_names(filename):
+    name_dict = {}
+
+    with open(filename, 'rt', encoding='utf-8') as f:
+        content = f.read()
+        names_numbers = re.findall(r'<tr align="right"><td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', content)
+        
+        for rank, boy_name, girl_name in names_numbers:
+            if rank in name_dict:
+                name_dict[rank].append(boy_name)
+                name_dict[rank].append(girl_name)
+            else:
+                name_dict[rank] = [boy_name, girl_name]
+    
+    sorted_name_dict = {rank: sorted(names) for rank, names in name_dict.items()}
+    
+    sorted_name_rank_pairs = [(name, rank) for rank, names in sorted_name_dict.items() for name in names]
+    
+    sorted_name_rank_pairs.sort()  # Sorting alphabetically by name
+    
+    for name, rank in sorted_name_rank_pairs:
+        print(f"Name: {name}, Rank: {rank}")
+
+def main():
+    args = sys.argv[1:]
+
+    if not args:
+        print('usage: [--summaryfile] file [file ...]')
+        sys.exit(1)
+
+    summary = False
+    if args[0] == '--summaryfile':
+        summary = True
+        del args[0]
+        filename = args[-1]
+
+    for filename in args:
+        extract_names(filename)
+
+if __name__ == '__main__':
+    main()
